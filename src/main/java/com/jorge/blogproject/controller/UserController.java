@@ -66,9 +66,9 @@ public class UserController {
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody UserRequest userRequest){
         UserEntity userEntity = userService.findById(id).orElse(null);
         if(userEntity != null){
-            userEntity.setUsername(userRequest.username());
-            userEntity.setEmail(userRequest.email());
-            userEntity.setPassword(userRequest.password());
+            if(userRequest.username() != null) userEntity.setUsername(userRequest.username());
+            if(userRequest.email() != null) userEntity.setEmail(userRequest.email());
+            if(userRequest.password() != null) userEntity.setPassword(userRequest.password());
 
             if(userRequest.roles() != null) {
                 Set<RoleEntity> rolesFromRequest = userRequest.roles().stream()
