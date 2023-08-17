@@ -104,4 +104,17 @@ public class UserEntity{
     public void setRoles(Set<RoleEntity> roles) {
         this.roles = roles;
     }
+
+    @Override
+    public String toString() {
+        return "UserEntity{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", roles=" + roles +
+                '}';
+    }
 }

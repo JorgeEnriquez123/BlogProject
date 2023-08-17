@@ -16,10 +16,13 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/posts")
 public class PostController {
-    @Autowired
     PostService postService;
-    @Autowired
     UserService userService;
+
+    public PostController(PostService postService, UserService userService) {
+        this.postService = postService;
+        this.userService = userService;
+    }
 
     @GetMapping("/findAll")
     public ResponseEntity<?> findAll(){
