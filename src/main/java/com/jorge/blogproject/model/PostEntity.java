@@ -1,6 +1,8 @@
 package com.jorge.blogproject.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
 
@@ -10,10 +12,14 @@ public class PostEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(length = 50)
+    @NotNull
     private String title;
+    @NotNull
     private String content;
     @ManyToOne
     @JoinColumn(name = "userid")
+    @Valid
     private UserEntity user;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

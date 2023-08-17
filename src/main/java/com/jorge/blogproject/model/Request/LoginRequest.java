@@ -1,6 +1,10 @@
 package com.jorge.blogproject.model.Request;
 
+import jakarta.validation.constraints.NotNull;
+
 public record LoginRequest(
-  String username,
-  String password
+        @NotNull
+        String username,
+        @NotNull
+        String password
 ){}

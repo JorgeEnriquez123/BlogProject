@@ -48,17 +48,19 @@ public class AuthController {
         String hashedPassword = passwordEncoder.encode(userRequest.password());
         userEntity.setPassword(hashedPassword);
 
-        Set<RoleEntity> roles = userRequest.roles().stream()
-                .map(rol -> {
-                    EnumRole enumRole = EnumRole.valueOf("ROLE_" + rol);
-                    RoleEntity role = rolService.findByName(enumRole);
-                    if(role == null){
-                        role = new RoleEntity();
-                        role.setName(enumRole);
-                    }
-                    return role;
-                }).collect(Collectors.toSet());
-        userEntity.setRoles(roles);
+        if(userRequest.roles() != null) {
+            Set<RoleEntity> roles = userRequest.roles().stream()
+                    .map(rol -> {
+                        EnumRole enumRole = EnumRole.valueOf("ROLE_" + rol);
+                        RoleEntity role = rolService.findByName(enumRole);
+                        if (role == null) {
+                            role = new RoleEntity();
+                            role.setName(enumRole);
+                        }
+                        return role;
+                    }).collect(Collectors.toSet());
+            userEntity.setRoles(roles);
+        }
         return ResponseEntity.ok().body(userService.save(userEntity));
     }
 }

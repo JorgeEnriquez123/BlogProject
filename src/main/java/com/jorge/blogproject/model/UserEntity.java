@@ -1,6 +1,11 @@
 package com.jorge.blogproject.model;
 
+import jakarta.annotation.Nonnull;
 import jakarta.persistence.*;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -12,11 +17,21 @@ public class UserEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(length = 30, nullable = false)
+    @Size(min = 5, max = 30, message = "El usuario debe contener entre 5 a 30 caracteres")
     private String username;
+    @Column(nullable = false)
+    @NotNull(message = "Se debe de ingresar un correo válido")
+    @Email(message = "Se debe de ingresar un correo válido")
     private String email;
+    @Column(nullable = false)
+    @NotNull(message = "Debe de ingresar una contraseña")
     private String password;
 
+    @Column(nullable = false)
     private LocalDateTime createdAt;
+
+    @Column(nullable = false)
     private LocalDateTime updatedAt;
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     @JoinTable(
@@ -24,6 +39,7 @@ public class UserEntity{
             joinColumns = @JoinColumn(name = "userId"),
             inverseJoinColumns = @JoinColumn(name = "roleId")
     )
+    @Valid
     private Set<RoleEntity> roles = new HashSet<>();
 
     public UserEntity() {
