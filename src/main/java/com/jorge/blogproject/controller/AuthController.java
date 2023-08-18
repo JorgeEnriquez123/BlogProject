@@ -1,12 +1,9 @@
 package com.jorge.blogproject.controller;
 
-import com.jorge.blogproject.model.Enums.EnumRole;
 import com.jorge.blogproject.model.Request.LoginRequest;
 import com.jorge.blogproject.model.Request.UserRequest;
-import com.jorge.blogproject.model.RoleEntity;
 import com.jorge.blogproject.model.UserEntity;
-import com.jorge.blogproject.service.RoleService;
-import com.jorge.blogproject.service.UserService;
+import com.jorge.blogproject.service.AuthService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,26 +18,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
     private static final Logger LOG = LoggerFactory.getLogger(AuthController.class);
-    UserService userService;
-    RoleService roleService;
+    AuthService authService;
     PasswordEncoder passwordEncoder;
 
-    public AuthController(UserService userService, RoleService roleService, PasswordEncoder passwordEncoder) {
-        this.userService = userService;
-        this.roleService = roleService;
+    public AuthController(AuthService authService, PasswordEncoder passwordEncoder) {
+        this.authService = authService;
         this.passwordEncoder = passwordEncoder;
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest) {
-        UserEntity user = userService.login(loginRequest);
+        UserEntity user = authService.login(loginRequest);
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciales incorrectas");
         }
@@ -56,29 +50,15 @@ public class AuthController {
             return ResponseEntity.badRequest().body(errors);
         }
         try {
-        UserEntity userEntity = new UserEntity();
-        userEntity.setUsername(userRequest.username());
-        userEntity.setEmail(userRequest.email());
-        String hashedPassword = passwordEncoder.encode(userRequest.password());
-        userEntity.setPassword(hashedPassword);
-            Set<RoleEntity> roles = userRequest.roles().stream()
-                    .map(rol -> {
-                        EnumRole enumRole = EnumRole.valueOf("ROLE_" + rol);
-                        RoleEntity role = roleService.findByName(enumRole);
-                        if (role == null) {
-                            role = new RoleEntity();
-                            role.setName(enumRole);
-                        }
-                        return role;
-                    }).collect(Collectors.toSet());
-            userEntity.setRoles(roles);
-            return ResponseEntity.ok().body(userService.save(userEntity));
+            UserEntity userEntity = authService.signup(userRequest);
+            return ResponseEntity.ok().body(userEntity);
         }
         catch (DataIntegrityViolationException d){
             LOG.error(d.getMessage());
             return ResponseEntity.badRequest().body("Username o email ya existentes");
         }
         catch (IllegalArgumentException e){
+            LOG.error(e.getMessage());
             return ResponseEntity.badRequest().body("Rol o roles no validos");
         }
     }

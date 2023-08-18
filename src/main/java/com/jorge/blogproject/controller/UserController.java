@@ -1,10 +1,10 @@
 package com.jorge.blogproject.controller;
 
 import com.jorge.blogproject.model.Request.UserUpdateRequest;
-import com.jorge.blogproject.model.RoleEntity;
 import com.jorge.blogproject.model.UserEntity;
 import com.jorge.blogproject.service.RoleService;
 import com.jorge.blogproject.service.UserService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -53,59 +53,41 @@ public class UserController {
     // Puede aceptar solo 1 atributo o actualizar todos
     // NO permite actualizar rol - El rol se puede eliminar o asignar manualmente con otros endpoints
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @Valid @RequestBody UserUpdateRequest userRequest, BindingResult result){
+    public ResponseEntity<?> update(@PathVariable Long id, @Valid @RequestBody UserUpdateRequest userUpdateRequest, BindingResult result){
         if (result.hasErrors()) {
             List<String> errors = result.getFieldErrors().stream()
                     .map(error -> error.getField() + ": " + error.getDefaultMessage())
                     .collect(Collectors.toList());
             return ResponseEntity.badRequest().body(errors);
         }
-        UserEntity userEntity = userService.findById(id).orElse(null);
+        UserEntity userEntity = userService.update(id, userUpdateRequest);
         if(userEntity != null){
-            userEntity.setUsername(userRequest.username());
-            userEntity.setEmail(userRequest.email());
-
-            String hashedPassword = passwordEncoder.encode(userRequest.password());
-            userEntity.setPassword(hashedPassword);
-            return ResponseEntity.ok().body(userService.save(userEntity));
+            return ResponseEntity.ok().body(userEntity);
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario con el ID: " + id + " no encontrado.");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado");
     }
 
     @PostMapping("/{userid}/roles/{roleid}")
     public ResponseEntity<?> assignRoleToUser(@PathVariable Long userid, @PathVariable Long roleid){
-        Optional<UserEntity> userFound = userService.findById(userid);
-        if (userFound.isPresent()) {
-            UserEntity userEntity = userFound.get();
-            Optional<RoleEntity> roleFound = roleService.findById(roleid);
-            if(roleFound.isPresent()){
-                RoleEntity roleEntity = roleFound.get();
-                userEntity.getRoles().add(roleEntity);
-                userService.save(userEntity);
-                return ResponseEntity.ok().body(userEntity);
-            }
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Rol no encontrado");
+        try {
+            UserEntity userEntity = userService.assignRoleToUser(userid, roleid);
+            return ResponseEntity.ok().body(userEntity);
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado");
+        catch (EntityNotFoundException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 
     // Delete Role of User
     @DeleteMapping("/{userid}/roles/{roleid}/delete")
     public ResponseEntity<?> removeRoleFromUser(@PathVariable Long userid, @PathVariable Long roleid){
-        Optional<UserEntity> userFound = userService.findById(userid);
-        if (userFound.isPresent()) {
-            UserEntity userEntity = userFound.get();
-            Optional<RoleEntity> roleFound = roleService.findById(roleid);
-            if(roleFound.isPresent()){
-                RoleEntity roleEntity = roleFound.get();
-                userEntity.getRoles().remove(roleEntity);
-                userService.save(userEntity);
-                // Usuario con el rol removido guardado
-                return ResponseEntity.ok().body(userEntity);
-            }
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Rol no encontrado");
+        try {
+            UserEntity userEntity = userService.removeRoleFromUser(userid, roleid);
+            return ResponseEntity.ok().body(userEntity);
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado");
+        catch (EntityNotFoundException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
     @DeleteMapping("/{id}/delete")
     public ResponseEntity<?> delete(@PathVariable Long id){
