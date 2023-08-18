@@ -24,11 +24,12 @@ public class PostEntity {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt = null;
+    private Boolean isEnabled;
 
     public PostEntity() {
     }
 
-    public PostEntity(Long id, String title, String content, UserEntity user, LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime deletedAt) {
+    public PostEntity(Long id, String title, String content, UserEntity user, LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime deletedAt, Boolean isEnabled) {
         this.id = id;
         this.title = title;
         this.content = content;
@@ -36,12 +37,14 @@ public class PostEntity {
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.deletedAt = deletedAt;
+        this.isEnabled = isEnabled;
     }
 
     @PrePersist
     void onCreate(){
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
+        isEnabled = true;
     }
     @PreUpdate
     void onUpdate(){
@@ -104,5 +107,25 @@ public class PostEntity {
         this.deletedAt = deletedAt;
     }
 
+    public Boolean getEnabled() {
+        return isEnabled;
+    }
 
+    public void setEnabled(Boolean enabled) {
+        isEnabled = enabled;
+    }
+
+    @Override
+    public String toString() {
+        return "PostEntity{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", content='" + content + '\'' +
+                ", user=" + user +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", deletedAt=" + deletedAt +
+                ", isEnabled=" + isEnabled +
+                '}';
+    }
 }

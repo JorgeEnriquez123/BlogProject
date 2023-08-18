@@ -4,6 +4,8 @@ import com.jorge.blogproject.model.Request.LoginRequest;
 import com.jorge.blogproject.model.UserEntity;
 import com.jorge.blogproject.repository.UserRepository;
 import com.jorge.blogproject.service.genericDAO.GenericDao;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +25,9 @@ public class UserService implements GenericDao<UserEntity> {
     @Override
     public List<UserEntity> findAll() {
         return userRepository.findAll();
+    }
+    public Page<UserEntity> findAllPaginable(Pageable pageable) {
+        return userRepository.findAll(pageable);
     }
 
     @Override
@@ -49,7 +54,22 @@ public class UserService implements GenericDao<UserEntity> {
         return userRepository.findByUsername(username);
     }
 
-    public void deleteById(Long id) {
-        userRepository.deleteById(id);
+    public UserEntity delete(Long id) {
+        UserEntity userEntity = userRepository.findById(id).orElse(null);
+        if(userEntity != null){
+            userEntity.setEnabled(false);
+            userRepository.save(userEntity);
+            return userEntity;
+        }
+        return userEntity;
+    }
+
+    public UserEntity restore(Long id){
+        UserEntity userFound = userRepository.findById(id).orElse(null);
+        if(userFound != null){
+            userFound.setEnabled(true);
+            return userRepository.save(userFound);
+        }
+        return userFound;
     }
 }

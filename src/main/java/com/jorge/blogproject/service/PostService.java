@@ -3,6 +3,8 @@ package com.jorge.blogproject.service;
 import com.jorge.blogproject.model.PostEntity;
 import com.jorge.blogproject.repository.PostRepository;
 import com.jorge.blogproject.service.genericDAO.GenericDao;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -22,6 +24,9 @@ public class PostService implements GenericDao<PostEntity> {
     public List<PostEntity> findAll() {
         return postRepository.findAll();
     }
+    public Page<PostEntity> findAllPaginable(Pageable pageable) {
+        return postRepository.findAll(pageable);
+    }
 
     public List<PostEntity> findPostsNotDeleted(){
         return postRepository.findPostsNotDeleted();
@@ -37,14 +42,24 @@ public class PostService implements GenericDao<PostEntity> {
         return postRepository.findById(id);
     }
 
-    public void delete(PostEntity postEntity) {
-        postEntity.setDeletedAt(LocalDateTime.now());
-        postRepository.save(postEntity);
+    public PostEntity delete(Long id) {
+        PostEntity postFound = postRepository.findById(id).orElse(null);
+        if(postFound != null){
+            postFound.setDeletedAt(LocalDateTime.now());
+            postFound.setEnabled(false);
+            return postRepository.save(postFound);
+        }
+        return postFound;
     }
 
-    public void restore(PostEntity postEntity){
-        postEntity.setDeletedAt(null);
-        postRepository.save(postEntity);
+    public PostEntity restore(Long id){
+        PostEntity postFound = postRepository.findById(id).orElse(null);
+        if(postFound != null){
+            postFound.setDeletedAt(null);
+            postFound.setEnabled(true);
+            return postRepository.save(postFound);
+        }
+        return postFound;
     }
 
 }

@@ -1,6 +1,5 @@
 package com.jorge.blogproject.model;
 
-import jakarta.annotation.Nonnull;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
@@ -17,10 +16,10 @@ public class UserEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(length = 30, nullable = false)
+    @Column(length = 30, nullable = false, unique = true)
     @Size(min = 5, max = 30, message = "El usuario debe contener entre 5 a 30 caracteres")
     private String username;
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     @NotNull(message = "Se debe de ingresar un correo válido")
     @Email(message = "Se debe de ingresar un correo válido")
     private String email;
@@ -41,11 +40,11 @@ public class UserEntity{
     )
     @Valid
     private Set<RoleEntity> roles = new HashSet<>();
-
+    private Boolean isEnabled;
     public UserEntity() {
     }
 
-    public UserEntity(Long id, String username, String email, String password, LocalDateTime createdAt, LocalDateTime updatedAt, Set<RoleEntity> roles) {
+    public UserEntity(Long id, String username, String email, String password, LocalDateTime createdAt, LocalDateTime updatedAt, Set<RoleEntity> roles, boolean isEnabled) {
         this.id = id;
         this.username = username;
         this.email = email;
@@ -53,12 +52,14 @@ public class UserEntity{
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.roles = roles;
+        this.isEnabled = isEnabled;
     }
 
     @PrePersist
     void onCreate(){
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
+        isEnabled = true;
     }
     @PreUpdate
     void onUpdate(){
@@ -121,6 +122,18 @@ public class UserEntity{
         this.roles = roles;
     }
 
+    public boolean isEnabled() {
+        return isEnabled;
+    }
+
+    public Boolean getEnabled() {
+        return isEnabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        isEnabled = enabled;
+    }
+
     @Override
     public String toString() {
         return "UserEntity{" +
@@ -131,6 +144,7 @@ public class UserEntity{
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
                 ", roles=" + roles +
+                ", isEnabled=" + isEnabled +
                 '}';
     }
 }

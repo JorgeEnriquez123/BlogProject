@@ -2,7 +2,6 @@ package com.jorge.blogproject.model;
 
 import com.jorge.blogproject.model.Enums.EnumRole;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "role")
@@ -11,15 +10,16 @@ public class RoleEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Enumerated(EnumType.STRING)
-    // @NotNull - User can have no role
     private EnumRole name;
+    private Boolean isEnabled = true;
 
     public RoleEntity() {
     }
 
-    public RoleEntity(Long id, EnumRole name) {
+    public RoleEntity(Long id, EnumRole name, Boolean isEnabled) {
         this.id = id;
         this.name = name;
+        this.isEnabled = isEnabled;
     }
 
     public Long getId() {
@@ -36,5 +36,13 @@ public class RoleEntity {
 
     public void setName(EnumRole name) {
         this.name = name;
+    }
+
+    public Boolean getEnabled() {
+        return isEnabled;
+    }
+
+    public void setEnabled(Boolean enabled) {
+        isEnabled = enabled;
     }
 }
