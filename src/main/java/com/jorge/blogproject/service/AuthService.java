@@ -32,7 +32,7 @@ public class AuthService {
         this.passwordEncoder = passwordEncoder;
         this.roleRepository = roleRepository;
     }
-
+    // * SIMULAR LOGUEO CON DATOS DE LA BD - NO LOGIN REAL
     public UserEntity login(LoginRequest loginRequest) {
         UserEntity userFound = userRepository.findByUsername(loginRequest.username());
         if (userFound == null || !passwordEncoder.matches(loginRequest.password(), userFound.getPassword())) {

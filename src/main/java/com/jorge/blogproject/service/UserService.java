@@ -64,16 +64,6 @@ public class UserService implements GenericDao<UserEntity> {
     public UserEntity findByUsername(String username){
         return userRepository.findByUsername(username);
     }
-    // * SIMULAR LOGUEO CON DATOS DE LA BD - NO LOGIN REAL
-
-    public UserEntity login(LoginRequest loginRequest){
-        UserEntity userFound = userRepository.findByUsername(loginRequest.username());
-        if(userFound == null || !passwordEncoder.matches(loginRequest.password(), userFound.getPassword())){
-            // User not found or User's password is incorrect
-            return null;
-        }
-        return userFound;
-    }
 
     public UserEntity assignRoleToUser(Long userid, Long roleid){
         UserEntity userFound = userRepository.findById(userid).orElse(null);
